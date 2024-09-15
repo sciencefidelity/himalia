@@ -26,6 +26,7 @@ strip = "symbols"
 
 [dependencies]
 bincode = "1"
+data-encoding = "2"
 num = "0.4"
 serde = { version = "1", features = ["derive"] }
-
+sled = "0.34"
