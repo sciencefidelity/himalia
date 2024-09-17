@@ -12,6 +12,8 @@ impl Transaction {
     pub fn get_id(&self) -> Vec<u8> {
         self.id.clone()
     }
+
+    pub fn new_coinbase_tx(genesis_address: &str) -> Self {}
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
