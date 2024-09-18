@@ -12,7 +12,6 @@ pub struct ProofOfWork {
 }
 
 impl ProofOfWork {
-    #[must_use]
     pub fn new(block: Block) -> Self {
         Self {
             block,
@@ -20,7 +19,12 @@ impl ProofOfWork {
         }
     }
 
-    #[must_use]
+    /// TODO: remove `println!`.
+    /// Part of the proof-of-work algorithm, used to find a nonce value that produces
+    /// a hash of the block data that is lower than the specific target value.
+    ///
+    /// Returns a tuple containing the found nonce value and the hash that was
+    /// produced using it.
     pub fn run(&self) -> (i64, String) {
         let mut nonce = 0;
         let mut hash = Vec::new();
@@ -39,7 +43,6 @@ impl ProofOfWork {
         (nonce, HEXLOWER.encode(hash.as_slice()))
     }
 
-    #[allow(clippy::unused_self)]
     const fn prepare_data(&self, _nonce: i64) -> Vec<u8> {
         vec![]
     }

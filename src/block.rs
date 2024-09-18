@@ -14,7 +14,7 @@ pub struct Block {
 }
 
 impl Block {
-    #[must_use]
+    /// Create a new `Block` struct for incorporation into the blockchain.
     pub fn new(pre_block_hash: String, transactions: &[Transaction], height: usize) -> Self {
         let mut block = Self {
             timestamp: current_timestamp(),
@@ -29,59 +29,55 @@ impl Block {
         block
     }
 
-    #[must_use]
+    /// Generate the first block in the blockchain.
     pub fn generate_genesis(transaction: &Transaction) -> Self {
         let transactions = vec![transaction.clone()];
         Self::new(String::from("None"), &transactions, 0)
     }
 
-    /// # Panics
-    ///
-    /// Will panic if `bincode::deserialize` fails.
-    #[must_use]
+    /// Deserialize a `Block` object from a slice of bytes.
     pub fn deserialize(bytes: &[u8]) -> Self {
-        bincode::deserialize(bytes).expect("failed to deserialize bytes")
+        bincode::deserialize(bytes).unwrap()
     }
 
-    /// # Panics
-    ///
-    /// Will panic if `bincode::serialize` fails.
-    #[must_use]
+    /// Serialize a slice of bytes from a reference to a block.
     pub fn serialize(&self) -> Vec<u8> {
-        bincode::serialize(self).expect("failed to serialize bytes")
+        bincode::serialize(self).unwrap()
     }
 
-    #[must_use]
+    /// Get the list of transactions.
     pub fn get_transactions(&self) -> &[Transaction] {
         self.transactions.as_slice()
     }
 
-    #[must_use]
+    /// Returns a cloned copy of the `pre_block_hash` string.
     pub fn get_pre_block_hash(&self) -> String {
         self.pre_block_hash.clone()
     }
 
-    #[must_use]
+    /// Get the hash of the transaction.
     pub fn get_hash(&self) -> &str {
         self.hash.as_str()
     }
 
-    #[must_use]
+    /// Returns a vector of bytes representing the hash string held
+    /// within the struct instance.
     pub fn get_hash_bytes(&self) -> Vec<u8> {
         self.hash.as_bytes().to_vec()
     }
 
-    #[must_use]
+    /// Return the timestamp held within the struct instance.
     pub const fn get_timestamp(&self) -> i64 {
         self.timestamp
     }
 
-    #[must_use]
+    /// Return the height of the block.
     pub const fn get_height(&self) -> usize {
         self.height
     }
 
-    #[must_use]
+    /// Hash the transaction IDs using SHA-256 and return the hash
+    /// a vector of bytes.
     pub fn hash_transactions(&self) -> Vec<u8> {
         let mut txhashs = vec![];
         for transaction in &self.transactions {
