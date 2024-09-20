@@ -37,6 +37,10 @@ impl Transaction {
     pub fn get_vout(&self) -> Vec<TXOutput> {
         self.vout.clone()
     }
+
+    pub fn serialize(&self) -> Vec<u8> {
+        vec![]
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
