@@ -116,7 +116,7 @@ impl Blockchain {
             }
             let block = option.unwrap();
             'outer: for tx in block.get_transactions() {
-                let txid_hex = HEXLOWER.encode(&tx.get_id());
+                let txid_hex = HEXLOWER.encode(tx.get_id());
                 for (idx, out) in tx.get_vout().iter().enumerate() {
                     if let Some(outs) = spent_txos.get(txid_hex.as_str()) {
                         for spend_out_idx in outs {
@@ -136,7 +136,7 @@ impl Blockchain {
                 }
 
                 for txin in tx.get_vin() {
-                    let txid_hex = HEXLOWER.encode(&txin.get_txid());
+                    let txid_hex = HEXLOWER.encode(txin.get_txid());
                     if spent_txos.contains_key(txid_hex.as_str()) {
                         spent_txos
                             .get_mut(txid_hex.as_str())
@@ -234,13 +234,14 @@ pub struct Iterator {
 }
 
 impl Iterator {
-    fn new(tip_hash: String, db: Db) -> Self {
+    const fn new(tip_hash: String, db: Db) -> Self {
         Self {
             current_hash: tip_hash,
             db,
         }
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> Option<Block> {
         let block_tree = self.db.open_tree(BLOCKS_TREE).unwrap();
         let data = block_tree.get(self.current_hash.clone()).unwrap();

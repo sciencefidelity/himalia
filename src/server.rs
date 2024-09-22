@@ -19,8 +19,8 @@ static GLOBAL_NODES: Lazy<Nodes> = Lazy::new(|| {
     nodes.add_node(String::from(CENTRAL_NODE));
     nodes
 });
-static GLOBAL_MEMORY_POOL: Lazy<MemoryPool> = Lazy::new(|| MemoryPool::new());
-static GLOBAL_BLOCKS_IN_TRANSIT: Lazy<BlockInTransit> = Lazy::new(|| BlockInTransit::new());
+static GLOBAL_MEMORY_POOL: Lazy<MemoryPool> = Lazy::new(MemoryPool::new);
+static GLOBAL_BLOCKS_IN_TRANSIT: Lazy<BlockInTransit> = Lazy::new(BlockInTransit::new);
 const TCP_WRITE_TIMEOUT: u64 = 1000;
 
 /// Defines essential functionalities to handle incoming client connections,
@@ -32,13 +32,13 @@ pub struct Server {
 
 impl Server {
     /// Initializes a new `Server` with the provided blockchain.
-    pub fn new(blockchain: Blockchain) -> Self {
+    pub const fn new(blockchain: Blockchain) -> Self {
         Self { blockchain }
     }
 
     pub fn run(&self, addr: &str) -> Result<(), Box<dyn Error>> {
         let listener = TcpListener::bind(addr).unwrap();
-        if addr.eq(CENTRAL_NODE) == false {
+        if !addr.eq(CENTRAL_NODE) {
             let best_height = self.blockchain.get_best_height();
             send_version(CENTRAL_NODE, best_height)?;
         }
@@ -105,7 +105,7 @@ fn send_get_data(addr: &str, op_type: OpType, id: &[u8]) -> Result<(), Box<dyn E
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
     send_data(
         socket_addr,
-        Package::GetData {
+        &Package::GetData {
             addr_from: node_addr,
             op_type,
             id: id.to_vec(),
@@ -125,7 +125,7 @@ fn send_inv(addr: &str, op_type: OpType, blocks: &[Vec<u8>]) -> Result<(), Box<d
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
     send_data(
         socket_addr,
-        Package::Inv {
+        &Package::Inv {
             addr_from: node_addr,
             op_type,
             items: blocks.to_vec(),
@@ -144,7 +144,7 @@ fn send_block(addr: &str, block: &Block) -> Result<(), Box<dyn Error>> {
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
     send_data(
         socket_addr,
-        Package::Block {
+        &Package::Block {
             addr_from: node_addr,
             block: block.serialize(),
         },
@@ -162,7 +162,7 @@ fn send_tx(addr: &str, tx: &Transaction) -> Result<(), Box<dyn Error>> {
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
     send_data(
         socket_addr,
-        Package::Tx {
+        &Package::Tx {
             addr_from: node_addr,
             transaction: tx.serialize(),
         },
@@ -180,7 +180,7 @@ fn send_version(addr: &str, height: usize) -> Result<(), Box<dyn Error>> {
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
     send_data(
         socket_addr,
-        Package::Version {
+        &Package::Version {
             addr_from: node_addr,
             version: NODE_VERSION,
             best_height: height,
@@ -199,14 +199,18 @@ fn send_get_blocks(addr: &str) -> Result<(), Box<dyn Error>> {
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
     send_data(
         socket_addr,
-        Package::GetBlocks {
+        &Package::GetBlocks {
             addr_from: node_addr,
         },
     )?;
     Ok(())
 }
 
-pub fn serve(blockchain: Blockchain, stream: TcpStream) -> Result<(), Box<dyn Error>> {
+/// Receives a TCP connection and a `Blockchain` instance. Deserializes incoming packages
+/// from the stream and processes them based on their type.
+// TODO: Split this up!
+#[allow(clippy::too_many_lines, clippy::needless_pass_by_value)]
+pub fn serve(blockchain: &Blockchain, stream: TcpStream) -> Result<(), Box<dyn Error>> {
     let peer_addr = stream.peer_addr()?;
     let reader = BufReader::new(&stream);
     let pkg_reader = Deserializer::from_reader(reader).into_iter::<Package>();
@@ -221,7 +225,7 @@ pub fn serve(blockchain: Blockchain, stream: TcpStream) -> Result<(), Box<dyn Er
                 if !GLOBAL_BLOCKS_IN_TRANSIT.is_empty() {
                     let block_hash = GLOBAL_BLOCKS_IN_TRANSIT.first().unwrap();
                     send_get_data(addr_from.as_str(), OpType::Block, &block_hash)?;
-                    let _ = GLOBAL_BLOCKS_IN_TRANSIT.remove(block_hash.as_slice());
+                    GLOBAL_BLOCKS_IN_TRANSIT.remove(block_hash.as_slice());
                 }
             }
             Package::GetBlocks { addr_from } => {
@@ -252,12 +256,12 @@ pub fn serve(blockchain: Blockchain, stream: TcpStream) -> Result<(), Box<dyn Er
             } => match op_type {
                 OpType::Block => {
                     GLOBAL_BLOCKS_IN_TRANSIT.add_blocks(items.as_slice());
-                    let block_hash = items.get(0).unwrap();
+                    let block_hash = items.first().unwrap();
                     send_get_data(addr_from.as_str(), OpType::Block, block_hash)?;
                     GLOBAL_BLOCKS_IN_TRANSIT.remove(block_hash);
                 }
                 OpType::Tx => {
-                    let txid = items.get(0).unwrap();
+                    let txid = items.first().unwrap();
                     let txid_hex = HEXLOWER.encode(txid);
                     if !GLOBAL_MEMORY_POOL.contains(txid_hex.as_str()) {
                         send_get_data(addr_from.as_str(), OpType::Tx, txid)?;
@@ -281,7 +285,7 @@ pub fn serve(blockchain: Blockchain, stream: TcpStream) -> Result<(), Box<dyn Er
                         if addr_from.eq(node.get_addr().as_str()) {
                             continue;
                         }
-                        send_inv(node.get_addr().as_str(), OpType::Tx, &vec![txid.clone()])?
+                        send_inv(node.get_addr().as_str(), OpType::Tx, &[txid.clone()])?;
                     }
                 }
                 if GLOBAL_MEMORY_POOL.len() >= TRANSACTION_THRESHOLD && GLOBAL_CONFIG.is_miner() {
@@ -305,7 +309,7 @@ pub fn serve(blockchain: Blockchain, stream: TcpStream) -> Result<(), Box<dyn Er
                         send_inv(
                             node.get_addr().as_str(),
                             OpType::Block,
-                            &vec![new_block.get_hash_bytes()],
+                            &[new_block.get_hash_bytes()],
                         )?;
                     }
                 }
@@ -334,8 +338,8 @@ pub fn serve(blockchain: Blockchain, stream: TcpStream) -> Result<(), Box<dyn Er
 }
 
 /// Sends data packages to a specified socket address.
-fn send_data(addr: SocketAddr, pkg: Package) -> Result<(), Box<dyn Error>> {
-    info!("send package: {:?}", &pkg);
+fn send_data(addr: SocketAddr, pkg: &Package) -> Result<(), Box<dyn Error>> {
+    info!("send package: {:?}", pkg);
     let stream = TcpStream::connect(addr);
     if stream.is_err() {
         error!("The {addr} is not valid");

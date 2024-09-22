@@ -1,4 +1,5 @@
 #![allow(
+    clippy::missing_errors_doc,
     clippy::missing_panics_doc,
     clippy::must_use_candidate,
     clippy::unwrap_used
@@ -13,5 +14,6 @@ pub mod server;
 pub mod transactions;
 pub mod utils;
 pub mod utxo_set;
+pub mod wallet;
 
-pub use utils::{current_timestamp, sha256_digest};
+pub use utils::{base58_decode, base58_encode, current_timestamp, ripemd160_digest, sha256_digest};

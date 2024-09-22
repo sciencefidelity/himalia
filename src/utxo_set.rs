@@ -7,7 +7,7 @@ pub struct UTXOSet {
 }
 
 impl UTXOSet {
-    pub fn new(blockchain: Blockchain) -> Self {
+    pub const fn new(blockchain: Blockchain) -> Self {
         Self { blockchain }
     }
 
