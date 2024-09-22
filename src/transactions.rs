@@ -10,10 +10,6 @@ pub struct Transaction {
 }
 
 impl Transaction {
-    pub fn get_id(&self) -> Vec<u8> {
-        self.id.clone()
-    }
-
     pub fn new_coinbase_tx(_genesis_address: &str) -> Self {
         Self {
             id: vec![],
@@ -27,19 +23,40 @@ impl Transaction {
     }
 
     pub fn is_coinbase(&self) -> bool {
-        true
+        self.vin.len() == 1 && self.vin[0].pub_key.is_empty()
     }
 
-    pub fn get_vin(&self) -> Vec<TXInput> {
-        self.vin.clone()
+    fn hash(&mut self) -> Vec<u8> {
+        let tx_copy = Transaction {
+            id: vec![],
+            vin: self.vin.clone(),
+            vout: self.vout.clone(),
+        };
+        crate::sha256_digest(tx_copy.serialize().as_slice())
     }
 
-    pub fn get_vout(&self) -> Vec<TXOutput> {
-        self.vout.clone()
+    pub fn get_id(&self) -> &[u8] {
+        self.id.as_slice()
+    }
+
+    pub fn get_id_bytes(&self) -> Vec<u8> {
+        self.id.clone()
+    }
+
+    pub fn get_vin(&self) -> &[TXInput] {
+        self.vin.as_slice()
+    }
+
+    pub fn get_vout(&self) -> &[TXOutput] {
+        self.vout.as_slice()
     }
 
     pub fn serialize(&self) -> Vec<u8> {
-        vec![]
+        bincode::serialize(self).unwrap().to_vec()
+    }
+
+    pub fn deserialize(bytes: &[u8]) -> Self {
+        bincode::deserialize(bytes).unwrap()
     }
 }
 

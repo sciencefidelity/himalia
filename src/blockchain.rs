@@ -1,5 +1,5 @@
-use crate::transaction::TXOutput;
-use crate::{block::Block, transaction::Transaction};
+use crate::block::Block;
+use crate::transactions::{TXOutput, Transaction};
 use data_encoding::HEXLOWER;
 use sled::transaction::TransactionResult;
 use sled::{Db, Tree};
@@ -161,7 +161,7 @@ impl Blockchain {
             }
             let block = option.unwrap();
             for transaction in block.get_transactions() {
-                if txid.eq(&transaction.get_id()) {
+                if txid.eq(transaction.get_id()) {
                     return Some(transaction.clone());
                 }
             }

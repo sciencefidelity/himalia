@@ -1,5 +1,5 @@
 use crate::{current_timestamp, sha256_digest};
-use crate::{proof_of_work::ProofOfWork, transaction::Transaction};
+use crate::{proof_of_work::ProofOfWork, transactions::Transaction};
 use serde::{Deserialize, Serialize};
 use sled::IVec;
 
