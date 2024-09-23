@@ -14,7 +14,7 @@ pub struct Block {
 }
 
 impl Block {
-    /// Create a new `Block` struct for incorporation into the blockchain.
+    /// Creates a new [Block] instance for incorporation into the [Blockchain].
     pub fn new(pre_block_hash: String, transactions: &[Transaction], height: usize) -> Self {
         let mut block = Self {
             timestamp: current_timestamp(),
@@ -29,23 +29,33 @@ impl Block {
         block
     }
 
-    /// Generate the first block in the blockchain.
+    /// Deserializes a [Block] object from a slice of bytes.
+    pub fn deserialize(bytes: &[u8]) -> Self {
+        bincode::deserialize(bytes).unwrap()
+    }
+
+    /// Serializes a slice of bytes from a reference to a [Block].
+    pub fn serialize(&self) -> Vec<u8> {
+        bincode::serialize(self).unwrap()
+    }
+
+    /// Generate the first block in the [Blockchain].
     pub fn generate_genesis(transaction: &Transaction) -> Self {
         let transactions = vec![transaction.clone()];
         Self::new(String::from("None"), &transactions, 0)
     }
 
-    /// Deserialize a `Block` object from a slice of bytes.
-    pub fn deserialize(bytes: &[u8]) -> Self {
-        bincode::deserialize(bytes).unwrap()
+    /// Hash the [Transaction] IDs using SHA-256 and return the hash
+    /// a vector of bytes.
+    pub fn hash_transactions(&self) -> Vec<u8> {
+        let mut txhashs = vec![];
+        for transaction in &self.transactions {
+            txhashs.extend(transaction.get_id());
+        }
+        sha256_digest(txhashs.as_slice())
     }
 
-    /// Serialize a slice of bytes from a reference to a block.
-    pub fn serialize(&self) -> Vec<u8> {
-        bincode::serialize(self).unwrap()
-    }
-
-    /// Get the list of transactions.
+    /// Get the list of [Transaction]s.
     pub fn get_transactions(&self) -> &[Transaction] {
         self.transactions.as_slice()
     }
@@ -55,35 +65,25 @@ impl Block {
         self.pre_block_hash.clone()
     }
 
-    /// Get the hash of the transaction.
+    /// Get the hash of the [Transaction].
     pub fn get_hash(&self) -> &str {
         self.hash.as_str()
     }
 
     /// Returns a vector of bytes representing the hash string held
-    /// within the struct instance.
+    /// within the [Block] instance.
     pub fn get_hash_bytes(&self) -> Vec<u8> {
         self.hash.as_bytes().to_vec()
     }
 
-    /// Return the timestamp held within the struct instance.
+    /// Return the timestamp held within the [Block] instance.
     pub const fn get_timestamp(&self) -> i64 {
         self.timestamp
     }
 
-    /// Return the height of the block.
+    /// Return the height of the [Block].
     pub const fn get_height(&self) -> usize {
         self.height
-    }
-
-    /// Hash the transaction IDs using SHA-256 and return the hash
-    /// a vector of bytes.
-    pub fn hash_transactions(&self) -> Vec<u8> {
-        let mut txhashs = vec![];
-        for transaction in &self.transactions {
-            txhashs.extend(transaction.get_id());
-        }
-        sha256_digest(txhashs.as_slice())
     }
 }
 

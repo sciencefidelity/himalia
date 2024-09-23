@@ -28,7 +28,7 @@ impl Nodes {
         Self(RwLock::new(vec![]))
     }
 
-    /// Adds a new `Node` to the collection with the given address only
+    /// Adds a new [Node] to the collection with the given address only
     /// if the address is not already in the collection.
     pub fn add_node(&self, addr: String) {
         let mut inner = self.0.write().unwrap();
@@ -63,7 +63,7 @@ impl Nodes {
         self.len() == 0
     }
 
-    /// Returns true if a `Node` with the given address in in the collection.
+    /// Returns true if a [Node] with the given address in in the collection.
     pub fn node_is_known(&self, addr: &str) -> bool {
         self.0.read().unwrap().iter().any(|x| x.get_addr().eq(addr))
     }

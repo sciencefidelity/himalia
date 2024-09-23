@@ -13,7 +13,7 @@ pub struct Wallet {
 }
 
 impl Wallet {
-    /// Generates a new `Wallet` instance by creating a new cryptographic key pair,
+    /// Generates a new [Wallet] instance by creating a new cryptographic key pair,
     /// and extracting the public key.
     pub fn new() -> Self {
         let pkcs8 = crate::new_key_pair();
@@ -27,7 +27,7 @@ impl Wallet {
         Self { pkcs8, public_key }
     }
 
-    /// Constructs an address from the `Wallets` structure's public key in a Base58 format.
+    /// Constructs an address from the [Wallet]'s public key in a Base58 format.
     pub fn get_address(&self) -> String {
         let pub_key_hash = hash_pub_key(self.public_key.as_slice());
         let mut payload: Vec<u8> = Vec::new();

@@ -1,10 +1,9 @@
 use crate::transactions::Transaction;
+use data_encoding::HEXLOWER;
 use std::{collections::HashMap, sync::RwLock};
 
-use data_encoding::HEXLOWER;
-
 /// A mempool. Serves as a holding area for pending transactions awaiting
-/// validation and inclusion in a block on the blockchain network.
+/// validation and inclusion in a block on the [Blockchain] network.
 /// Stores unconfirmed transactions, acting as a temporary repository before
 /// miners select and verify them for block inclusion.
 #[derive(Default)]
@@ -15,19 +14,18 @@ impl MemoryPool {
         Self(RwLock::new(HashMap::new()))
     }
 
-    /// Checks whether a transaction with a specific transaction id
-    /// exists within the memory pool.
+    /// Checks whether a [Transaction] with a specific id exists within the [`MemoryPool`].
     pub fn contains(&self, txid_hex: &str) -> bool {
         self.0.read().unwrap().contains_key(txid_hex)
     }
 
-    /// Inserts a new transaction into the memory pool.
+    /// Inserts a new [Transaction] into the [`MemoryPool`].
     pub fn add(&self, tx: Transaction) {
         let txid_hex = HEXLOWER.encode(tx.get_id());
         self.0.write().unwrap().insert(txid_hex, tx);
     }
 
-    /// Attempts to retrieve a transaction from the memory pool matching
+    /// Attempts to retrieve a [Transaction] from the [`MemoryPool`] matching
     /// the given transaction id.
     pub fn get(&self, txid_hex: &str) -> Option<Transaction> {
         if let Some(tx) = self.0.read().unwrap().get(txid_hex) {
@@ -36,14 +34,14 @@ impl MemoryPool {
         None
     }
 
-    /// Removes a transaction from the memory pool matching the given
+    /// Removes a [Transaction] from the [`MemoryPool`] matching the given
     /// transaction ID.
     pub fn remove(&self, txid_hex: &str) {
         let mut inner = self.0.write().unwrap();
         inner.remove(txid_hex);
     }
 
-    /// Retrieves all transactions stored in the memory pool.
+    /// Retrieves all [Transaction]s stored in the [`MemoryPool`].
     pub fn get_all(&self) -> Vec<Transaction> {
         let mut txs = vec![];
         for (_, v) in self.0.read().unwrap().iter() {
@@ -61,8 +59,7 @@ impl MemoryPool {
     }
 }
 
-/// For tracking blocks that are in transit during a P2P
-/// networking protocol.
+/// For tracking [Block]s that are in transit during a P2P networking protocol.
 #[derive(Default)]
 pub struct BlockInTransit(RwLock<Vec<Vec<u8>>>);
 
@@ -85,7 +82,7 @@ impl BlockInTransit {
         None
     }
 
-    /// Deletes a specific block identified by its hash from `BlockInTransit`.
+    /// Deletes a specific [Block] identified by its hash from [`BlockInTransit`].
     pub fn remove(&self, block_hash: &[u8]) {
         let mut inner = self.0.write().unwrap();
         if let Some(idx) = inner.iter().position(|x| x.eq(block_hash)) {

@@ -17,7 +17,7 @@ pub struct Blockchain {
 }
 
 impl Blockchain {
-    /// Create a new `Blockchain` instance by initializing a new database connection
+    /// Create a new [Blockchain] instance by initializing a new database connection
     /// and creating the genesis block.
     pub fn create(genesis_address: &str) -> Self {
         let db = sled::open(current_dir().unwrap().join("data")).unwrap();
@@ -38,7 +38,7 @@ impl Blockchain {
         }
     }
 
-    /// Update the `blocks_tree` database tree with the new `Block` object.
+    /// Update the `blocks_tree` database tree with the new [Block] instance.
     fn update_blocks_tree(blocks_tree: &Tree, block: &Block) {
         let block_hash = block.get_hash();
         let _: TransactionResult<(), ()> = blocks_tree.transaction(|tx_db| {
@@ -48,13 +48,8 @@ impl Blockchain {
         });
     }
 
-    /// Initialize the new `Blockchain` instance by initiating a new instance
+    /// Initialize the new [Blockchain] instance by initiating a new instance
     /// of the database and retrieving the latest block hash.
-    ///
-    /// # Panics
-    ///
-    /// Will panic if the `Blockchain` instance, is not found.
-    /// `Blockchain::create()` must be called before calling this method.
     pub fn new() -> Self {
         let db = sled::open(current_dir().unwrap().join("data")).unwrap();
         let blocks_tree = db.open_tree(BLOCKS_TREE).unwrap();
@@ -82,7 +77,7 @@ impl Blockchain {
         *tip_hash = String::from(new_tip_hash);
     }
 
-    /// Mine a block. Create a new block and incorporate it into the blockchain.
+    /// Mine a block. Create a new block and incorporate it into the [Blockchain].
     pub fn mine_block(&self, transactions: &[Transaction]) -> Block {
         for transaction in transactions {
             assert!(transaction.verify(self), "ERROR: Invalid transaction");
@@ -102,8 +97,8 @@ impl Blockchain {
         Iterator::new(self.get_tip_hash(), self.db.clone())
     }
 
-    /// Navigates through the blockchain, identifying UTXOs by inspecting each
-    /// transaction within each block.
+    /// Navigates through the [Blockchain], identifying UTXOs by inspecting each
+    /// transaction within each [Block].
     pub fn find_utxo(&self) -> HashMap<String, Vec<TXOutput>> {
         let mut utxo: HashMap<String, Vec<TXOutput>> = HashMap::new();
         let mut spent_txos: HashMap<String, Vec<usize>> = HashMap::new();
@@ -151,7 +146,7 @@ impl Blockchain {
         utxo
     }
 
-    /// Searches the blockchain for a specific transaction by its ID.
+    /// Searches the [Blockchain] for a specific transaction by its ID.
     pub fn find_transaction(&self, txid: &[u8]) -> Option<Transaction> {
         let mut iterator = self.iterator();
         loop {
@@ -169,7 +164,7 @@ impl Blockchain {
         None
     }
 
-    /// Add a new block to the `Blockchain` struct after it's been mined.
+    /// Add a new [Block] to the [Blockchain] after it's been mined.
     pub fn add_block(&self, block: &Block) {
         let block_tree = self.db.open_tree(BLOCKS_TREE).unwrap();
         if block_tree.get(block.get_hash()).unwrap().is_some() {
@@ -190,7 +185,7 @@ impl Blockchain {
         });
     }
 
-    /// Returns the height of the block with the highest height in blockchain.
+    /// Returns the height of the [Block] with the highest height in [Blockchain].
     pub fn get_best_height(&self) -> usize {
         let block_tree = self.db.open_tree(BLOCKS_TREE).unwrap();
         let tip_block_bytes = block_tree
@@ -201,8 +196,8 @@ impl Blockchain {
         tip_block.get_height()
     }
 
-    /// Retrieve the block bytes for the database corresponding to the hash
-    /// and deserialize them into a `Block` struct.
+    /// Retrieve the [Block] bytes for the database corresponding to the hash
+    /// and deserialize them into a [Block].
     pub fn get_block(&self, block_hash: &[u8]) -> Option<Block> {
         let block_tree = self.db.open_tree(BLOCKS_TREE).unwrap();
         if let Some(block_bytes) = block_tree.get(block_hash).unwrap() {
@@ -211,7 +206,7 @@ impl Blockchain {
         None
     }
 
-    /// Returns a list of block hashes in the blockchain.
+    /// Returns a list of [Block] hashes in the [Blockchain].
     pub fn get_block_hashes(&self) -> Vec<Vec<u8>> {
         let mut iterator = self.iterator();
         let mut blocks = vec![];

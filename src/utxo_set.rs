@@ -4,9 +4,9 @@ use std::collections::HashMap;
 
 const UTXO_TREE: &str = "chainstate";
 
-/// Manages UTXOs (Unspent Transactional Outputs) in the blockchain. Facilitates
+/// Manages UTXOs (Unspent Transactional Outputs) in the [Blockchain]. Facilitates
 /// functionalities such as finding spendable outputs, reindexing outputs, updating
-/// outputs after block confirmation, and counting transactions within the blockchain.
+/// outputs after [Block] confirmation, and counting transactions within the blockchain.
 pub struct UTXOSet {
     blockchain: Blockchain,
 }
@@ -77,7 +77,7 @@ impl UTXOSet {
     }
 
     /// Reindexes the UTXO tree by clearing it and rebuilding it from the
-    /// blockchain's transaction outputs.
+    /// [Blockchain]'s [Transaction] outputs.
     pub fn reindex(&self) {
         let db = self.blockchain.get_db();
         let utxo_tree = db.open_tree(UTXO_TREE).unwrap();
@@ -90,7 +90,7 @@ impl UTXOSet {
         }
     }
 
-    /// Updates the UTXO set after a block confirmation.
+    /// Updates the UTXO set after a [Block] confirmation.
     #[allow(clippy::similar_names)]
     pub fn update(&self, block: &Block) {
         let db = self.blockchain.get_db();

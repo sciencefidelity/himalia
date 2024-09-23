@@ -13,13 +13,13 @@ const SUBSIDY: i32 = 10;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct TXInput {
-    /// Bytes representing the id of the transaction that created
+    /// Bytes representing the id of the [Transaction] that created
     /// the output that this input is sending.
     txid: Vec<u8>,
-    /// An index that represents which output of the transaction
+    /// An index that represents which output of the [Transaction]
     /// with `txid` this input is sending.
     vout: usize,
-    /// Bytes that will contain a digital signature of the Transaction
+    /// Bytes that will contain a digital signature of the [Transaction]
     /// that includes this input.
     signature: Vec<u8>,
     /// Bytes that will contain the public key of the owner of the
@@ -57,7 +57,7 @@ impl TXInput {
     }
 }
 
-/// Manages transaction outputs within the blockchain, storing values
+/// Manages [Transaction] outputs within the [Blockchain], storing values
 /// and public key hashes. Facilitates creation of new outputs, value
 /// retrieval, and verification of locked outputs using cryptographic hashes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -95,8 +95,8 @@ impl TXOutput {
     }
 }
 
-/// Manages transaction creation, validation and signature verifacation
-/// in the blockchain. Constructs Coinbase and UTXO transactions, handles
+/// Manages [Transaction] creation, validation and signature verification
+/// in the [Blockchain]. Constructs Coinbase and UTXO transactions, handles
 /// transaction signing and verification, and provides methods for serialization
 /// and deserialization of transaction data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,7 +107,7 @@ pub struct Transaction {
 }
 
 impl Transaction {
-    /// Creates a new Coinbase transaction, generating a transaction output with
+    /// Creates a new Coinbase transaction, generating a [Transaction] output with
     /// a specified value and recipient address.
     pub fn new_coinbase_tx(to: &str) -> Self {
         let tx_output = TXOutput::new(SUBSIDY, to);
@@ -124,8 +124,8 @@ impl Transaction {
         tx
     }
 
-    /// Constructs a new UTXO-based transaction by selecting spendable outputs and creating
-    /// inputs for the transaction. Calculates inputs required based on available outputs,
+    /// Constructs a new UTXO-based [Transaction] by selecting spendable outputs and creating
+    /// inputs for the [Transaction]. Calculates inputs required based on available outputs,
     /// manages outputs for the recipient and change, signs the transaction, and computes its id.
     pub fn new_utxo_transaction(from: &str, to: &str, amount: i32, utxo_set: &UTXOSet) -> Self {
         let wallets = Wallets::new();
@@ -161,7 +161,7 @@ impl Transaction {
         tx
     }
 
-    /// Creates a trimmed copy of the transaction, excluding signatures, enabling
+    /// Creates a trimmed copy of the [Transaction], excluding signatures, enabling
     /// signature verification without modifying the original transaction.
     fn trimmed_copy(&self) -> Self {
         let mut inputs = Vec::new();
@@ -180,7 +180,7 @@ impl Transaction {
         }
     }
 
-    /// Signs the transaction inputs using the Elliptic Curve Digital Signature Algorithm (ECDSA)
+    /// Signs the [Transaction] inputs using the Elliptic Curve Digital Signature Algorithm (ECDSA)
     fn sign(&mut self, blockchain: &Blockchain, pkcs8: &[u8]) {
         let mut tx_copy = self.trimmed_copy();
         for (idx, vin) in self.vin.iter_mut().enumerate() {
@@ -200,7 +200,7 @@ impl Transaction {
         }
     }
 
-    /// Verifies the transaction signatures agains corresponding public keys. Checks for
+    /// Verifies the [Transaction] signatures against corresponding public keys. Checks for
     /// Coinbase transactions, prepares a trimmed copy, validates signatures against public
     /// keys, and ensures the correctness of previous transactions before confirming the
     /// authority of signatures.
@@ -234,12 +234,12 @@ impl Transaction {
         true
     }
 
-    /// Checks whether the transaction is a Coinbase transaction.
+    /// Checks whether the [Transaction] is a Coinbase transaction.
     pub fn is_coinbase(&self) -> bool {
         self.vin.len() == 1 && self.vin[0].pub_key.is_empty()
     }
 
-    /// Generates the transaction's SHA256 hash.
+    /// Generates the [Transaction]'s SHA256 hash.
     fn hash(&self) -> Vec<u8> {
         let tx_copy = Self {
             id: vec![],

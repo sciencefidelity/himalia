@@ -24,14 +24,14 @@ static GLOBAL_BLOCKS_IN_TRANSIT: Lazy<BlockInTransit> = Lazy::new(BlockInTransit
 const TCP_WRITE_TIMEOUT: u64 = 1000;
 
 /// Defines essential functionalities to handle incoming client connections,
-/// communicate with a central node, and concurrently manage requests from
+/// communicate with a central [Node], and concurrently manage requests from
 /// multiple clients through separate threads.
 pub struct Server {
     blockchain: Blockchain,
 }
 
 impl Server {
-    /// Initializes a new `Server` with the provided blockchain.
+    /// Initializes a new [Server] with the provided [Blockchain].
     pub const fn new(blockchain: Blockchain) -> Self {
         Self { blockchain }
     }
@@ -59,9 +59,9 @@ impl Server {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum OpType {
-    /// Operations related to transactions.
+    /// Operations related to [Transaction]s.
     Tx,
-    /// Activities linked to blocks in the blockchain.
+    /// Activities linked to [Blocks] in the [Blockchain].
     Block,
 }
 
@@ -99,7 +99,7 @@ pub enum Package {
 ///
 /// Abstracts the process of sending a specific type of data to a specified
 /// address using a standardized package format. Will initiate a data retrieval
-/// request to the specified address in the blockchain network.
+/// request to the specified address in the [Blockchain] network.
 fn send_get_data(addr: &str, op_type: OpType, id: &[u8]) -> Result<(), Box<dyn Error>> {
     let socket_addr = addr.parse().unwrap();
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
@@ -117,7 +117,7 @@ fn send_get_data(addr: &str, op_type: OpType, id: &[u8]) -> Result<(), Box<dyn E
 /// Notifies about specific data items to a provided network address.
 ///
 /// Abstracts the process of sending inventory information to a specified address
-/// using a standardized package format, which in this case represents blocks.
+/// using a standardized package format, which in this case represents [Block]s.
 /// Will help broadcast inventory notifications for specific data items to the
 /// indicated network address.
 fn send_inv(addr: &str, op_type: OpType, blocks: &[Vec<u8>]) -> Result<(), Box<dyn Error>> {
@@ -134,7 +134,7 @@ fn send_inv(addr: &str, op_type: OpType, blocks: &[Vec<u8>]) -> Result<(), Box<d
     Ok(())
 }
 
-/// Transmits a block to a specified network address.
+/// Transmits a [Block] to a specified network address.
 ///
 /// Abstracts the process of sending a block to a specified address using
 /// a standardized package format. The block is serialized before sending, likely
@@ -152,10 +152,10 @@ fn send_block(addr: &str, block: &Block) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Dispatches a transaction to a specified network address.
+/// Dispatches a [Transaction] to a specified network address.
 ///
-/// Abstracts the process of sending a transaction to a specified address using
-/// a standardized package format. The transaction is serialized before sending
+/// Abstracts the process of sending a [Transaction] to a specified address using
+/// a standardized package format. The [Transaction] is serialized before sending
 /// for efficient transmission over the network.
 fn send_tx(addr: &str, tx: &Transaction) -> Result<(), Box<dyn Error>> {
     let socket_addr = addr.parse().unwrap();
@@ -174,7 +174,7 @@ fn send_tx(addr: &str, tx: &Transaction) -> Result<(), Box<dyn Error>> {
 ///
 /// Abstracts the process of sending a version message to a specified address using
 /// a standardized package format. The version message includes information about
-/// the node's version and the best-known height.
+/// the [Node]'s version and the best-known height.
 fn send_version(addr: &str, height: usize) -> Result<(), Box<dyn Error>> {
     let socket_addr = addr.parse().unwrap();
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
@@ -189,7 +189,7 @@ fn send_version(addr: &str, height: usize) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Transmits a request for block data to a specified network address.
+/// Transmits a request for [Block] data to a specified network address.
 ///
 /// Abstracts the process of sending a request for blocks to a specified address
 /// using a standardized package format. The request does not include any specific
@@ -206,7 +206,7 @@ fn send_get_blocks(addr: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Receives a TCP connection and a `Blockchain` instance. Deserializes incoming packages
+/// Receives a TCP connection and a [Blockchain] instance. Deserializes incoming packages
 /// from the stream and processes them based on their type.
 // TODO: Split this up!
 #[allow(clippy::too_many_lines, clippy::needless_pass_by_value)]
