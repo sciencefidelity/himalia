@@ -15,5 +15,7 @@ pub mod transactions;
 pub mod utils;
 pub mod utxo_set;
 pub mod wallet;
+pub mod wallets;
 
 pub use utils::{base58_decode, base58_encode, current_timestamp, ripemd160_digest, sha256_digest};
+pub use utils::{ecdsa_p256_sha256_sign_digest, ecdsa_p256_sha256_sign_verify, new_key_pair};
