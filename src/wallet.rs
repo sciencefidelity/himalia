@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 const VERSION: u8 = 0x00;
 pub const ADDRESS_CHECK_SUM_LEN: usize = 4;
 
+/// Functionality for creating and managing wallet addresses in the blockchain system.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Wallet {
     pkcs8: Vec<u8>,
@@ -12,6 +13,8 @@ pub struct Wallet {
 }
 
 impl Wallet {
+    /// Generates a new `Wallet` instance by creating a new cryptographic key pair,
+    /// and extracting the public key.
     pub fn new() -> Self {
         let pkcs8 = crate::new_key_pair();
         let key_pair = EcdsaKeyPair::from_pkcs8(
@@ -24,6 +27,7 @@ impl Wallet {
         Self { pkcs8, public_key }
     }
 
+    /// Constructs an address from the `Wallets` structure's public key in a Base58 format.
     pub fn get_address(&self) -> String {
         let pub_key_hash = hash_pub_key(self.public_key.as_slice());
         let mut payload: Vec<u8> = Vec::new();
@@ -34,10 +38,12 @@ impl Wallet {
         crate::base58_encode(payload.as_slice())
     }
 
+    /// Retrieves the raw bytes representing the associated public key.
     pub fn get_public_key(&self) -> &[u8] {
         self.public_key.as_slice()
     }
 
+    /// Retrieves the raw bytes of the PKCS #8 representation of the public key.
     pub fn get_pksc8(&self) -> &[u8] {
         self.pkcs8.as_slice()
     }
@@ -49,17 +55,22 @@ impl Default for Wallet {
     }
 }
 
+/// Hashes the given public key using SHA-256 and then RIPEMD-160 hash functions.
 pub fn hash_pub_key(pub_key: &[u8]) -> Vec<u8> {
     let pub_key_sha256 = crate::sha256_digest(pub_key);
     crate::ripemd160_digest(pub_key_sha256.as_slice())
 }
 
+/// Generates a checksum for a payload by applying a double SHA256 hash and
+/// extracting the first byte.
 fn checksum(payload: &[u8]) -> Vec<u8> {
     let first_sha = crate::sha256_digest(payload);
     let second_sha = crate::sha256_digest(first_sha.as_slice());
     second_sha[0..ADDRESS_CHECK_SUM_LEN].to_vec()
 }
 
+/// Validates the integrity of an address by decoding it, separating its components,
+/// and recomputing the checksum.
 pub fn validate_address(address: &str) -> bool {
     let payload = crate::base58_decode(address);
     let actual_checksum = payload[payload.len() - ADDRESS_CHECK_SUM_LEN..].to_vec();
@@ -72,6 +83,7 @@ pub fn validate_address(address: &str) -> bool {
     actual_checksum.eq(target_checksum.as_slice())
 }
 
+/// Converts a public key hash into a Base58 encoded address.
 pub fn convert_address(pub_hash_key: &[u8]) -> String {
     let mut payload: Vec<u8> = vec![];
     payload.push(VERSION);

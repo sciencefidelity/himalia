@@ -5,15 +5,18 @@ use std::{collections::HashMap, env::current_dir};
 
 pub const WALLET_FILE: &str = "wallet.dat";
 
+/// Functionality to manage a collection of wallets within the blockchain.
 pub struct Wallets(HashMap<String, Wallet>);
 
 impl Wallets {
+    /// Initializes a new instance of `Wallets` by attempting to load wallets from a file.
     pub fn new() -> Self {
         let mut wallets = Self(HashMap::new());
         wallets.load_from_file();
         wallets
     }
 
+    /// Generates a new wallet.
     pub fn create_wallet(&mut self) -> String {
         let wallet = Wallet::new();
         let address = wallet.get_address();
@@ -22,6 +25,7 @@ impl Wallets {
         address
     }
 
+    /// Retrieves all addresses associated with the wallets.
     pub fn get_addresses(&self) -> Vec<String> {
         let mut addresses = vec![];
         for address in self.0.keys() {
@@ -30,10 +34,12 @@ impl Wallets {
         addresses
     }
 
+    /// Retrieves a reference to a wallet by its address.
     pub fn get_wallet(&self, address: &str) -> Option<&Wallet> {
         self.0.get(address)
     }
 
+    /// Attempts to load wallet data from a file.
     pub fn load_from_file(&mut self) {
         let path = current_dir().unwrap().join(WALLET_FILE);
         if !path.exists() {
@@ -46,6 +52,7 @@ impl Wallets {
         self.0 = bincode::deserialize(&buf[..]).expect("unable to deserialize file data");
     }
 
+    /// Saves the contents of the wallets map into a file.
     fn save_to_file(&self) {
         let path = current_dir().unwrap().join(WALLET_FILE);
         let file = OpenOptions::new()
