@@ -7,7 +7,6 @@ const NODE_ADDRESS_KEY: &str = "NODE_ADDRESS";
 const MINING_ADDRESS_KEY: &str = "MINING_ADDRESS";
 
 /// Centralized repository for managing configurations within the [Blockchain].
-#[derive(Default)]
 pub struct Config(RwLock<HashMap<String, String>>);
 
 impl Config {
@@ -38,5 +37,11 @@ impl Config {
     pub fn is_miner(&self) -> bool {
         let inner = self.0.read().unwrap();
         inner.contains_key(MINING_ADDRESS_KEY)
+    }
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self::new()
     }
 }

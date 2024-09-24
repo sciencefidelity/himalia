@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use structopt::StructOpt;
 
 const MINE_TRUE: usize = 1;
@@ -54,4 +55,3 @@ enum Command {
 }
 
 fn main() {}
-

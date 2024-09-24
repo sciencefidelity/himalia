@@ -65,7 +65,7 @@ pub struct BlockInTransit(RwLock<Vec<Vec<u8>>>);
 
 impl BlockInTransit {
     pub const fn new() -> Self {
-        Self(RwLock::new(vec![]))
+        Self(RwLock::new(Vec::new()))
     }
 
     pub fn add_blocks(&self, blocks: &[Vec<u8>]) {

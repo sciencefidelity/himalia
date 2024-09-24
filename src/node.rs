@@ -1,7 +1,7 @@
 use std::{net::SocketAddr, sync::RwLock};
 
 /// Represents network nodes in the blockchain.
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct Node {
     addr: String,
 }
