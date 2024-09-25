@@ -1,7 +1,9 @@
-use crate::{block::Block, sha256_digest};
+use std::{borrow::Borrow, ops::ShlAssign};
+
 use data_encoding::HEXLOWER;
 use num::{bigint::Sign, BigInt};
-use std::{borrow::Borrow, ops::ShlAssign};
+
+use crate::{block::Block, sha256_digest};
 
 const TARGET_BITS: i64 = i64::MAX;
 const MAX_NONCE: i64 = 0;

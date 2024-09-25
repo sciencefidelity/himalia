@@ -1,6 +1,8 @@
-use crate::transactions::Transaction;
-use data_encoding::HEXLOWER;
 use std::{collections::HashMap, sync::RwLock};
+
+use data_encoding::HEXLOWER;
+
+use crate::transactions::Transaction;
 
 /// A mempool. Serves as a holding area for pending transactions awaiting
 /// validation and inclusion in a block on the [Blockchain] network.

@@ -1,7 +1,8 @@
-use crate::{current_timestamp, sha256_digest};
-use crate::{proof_of_work::ProofOfWork, transactions::Transaction};
 use serde::{Deserialize, Serialize};
 use sled::IVec;
+
+use crate::{current_timestamp, sha256_digest};
+use crate::{proof_of_work::ProofOfWork, transactions::Transaction};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Block {

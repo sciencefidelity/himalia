@@ -1,11 +1,13 @@
-use crate::block::Block;
-use crate::transactions::{TXOutput, Transaction};
-use data_encoding::HEXLOWER;
-use sled::transaction::TransactionResult;
-use sled::{Db, Tree};
 use std::collections::HashMap;
 use std::env::current_dir;
 use std::sync::{Arc, RwLock};
+
+use data_encoding::HEXLOWER;
+use sled::transaction::TransactionResult;
+use sled::{Db, Tree};
+
+use crate::block::Block;
+use crate::transactions::{TXOutput, Transaction};
 
 const TIP_BLOCK_HASH_KEY: &str = "tip_block_hash";
 const BLOCKS_TREE: &str = "blocks";

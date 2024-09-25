@@ -1,13 +1,10 @@
-use crate::{
-    base58_decode,
-    blockchain::Blockchain,
-    utxo_set::UTXOSet,
-    wallet::{self, hash_pub_key},
-    wallets::Wallets,
-};
 use data_encoding::HEXLOWER;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+use crate::wallet::{self, hash_pub_key};
+use crate::{base58_decode, blockchain::Blockchain};
+use crate::{utxo_set::UTXOSet, wallets::Wallets};
 
 const SUBSIDY: i32 = 10;
 

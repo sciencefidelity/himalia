@@ -1,7 +1,9 @@
-use crate::wallet::Wallet;
-use std::fs::{File, OpenOptions};
 use std::io::{BufWriter, Read, Write};
 use std::{collections::HashMap, env::current_dir};
+
+use std::fs::{File, OpenOptions};
+
+use crate::wallet::Wallet;
 
 pub const WALLET_FILE: &str = "wallet.dat";
 

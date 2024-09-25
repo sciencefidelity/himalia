@@ -1,9 +1,10 @@
+use std::iter::repeat;
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use crypto::digest::Digest;
 use ring::digest::{Context, SHA256};
 use ring::rand::SystemRandom;
 use ring::signature::{EcdsaKeyPair, ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING};
-use std::iter::repeat;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Retrieves the current timestamp as an integer representing milliseconds since the Unix epoch.
 pub fn current_timestamp() -> i64 {

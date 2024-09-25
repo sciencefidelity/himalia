@@ -1,6 +1,8 @@
-use crate::{block::Block, blockchain::Blockchain, transactions::TXOutput};
-use data_encoding::HEXLOWER;
 use std::collections::HashMap;
+
+use data_encoding::HEXLOWER;
+
+use crate::{block::Block, blockchain::Blockchain, transactions::TXOutput};
 
 const UTXO_TREE: &str = "chainstate";
 

@@ -1,15 +1,17 @@
-use crate::memory_pool::{BlockInTransit, MemoryPool};
-use crate::transactions::Transaction;
-use crate::utxo_set::UTXOSet;
-use crate::{block::Block, blockchain::Blockchain, config::GLOBAL_CONFIG, node::Nodes};
+use std::io::{BufReader, Write};
+use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
+use std::{error::Error, thread, time::Duration};
+
 use data_encoding::HEXLOWER;
 use log::{error, info};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use serde_json::Deserializer;
-use std::io::{BufReader, Write};
-use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
-use std::{error::Error, thread, time::Duration};
+
+use crate::memory_pool::{BlockInTransit, MemoryPool};
+use crate::transactions::Transaction;
+use crate::utxo_set::UTXOSet;
+use crate::{block::Block, blockchain::Blockchain, config::GLOBAL_CONFIG, node::Nodes};
 
 const NODE_VERSION: usize = 1;
 pub const CENTRAL_NODE: &str = "127.0.0.1:2001";
@@ -157,7 +159,7 @@ fn send_block(addr: &str, block: &Block) -> Result<(), Box<dyn Error>> {
 /// Abstracts the process of sending a [Transaction] to a specified address using
 /// a standardized package format. The [Transaction] is serialized before sending
 /// for efficient transmission over the network.
-fn send_tx(addr: &str, tx: &Transaction) -> Result<(), Box<dyn Error>> {
+pub fn send_tx(addr: &str, tx: &Transaction) -> Result<(), Box<dyn Error>> {
     let socket_addr = addr.parse().unwrap();
     let node_addr = GLOBAL_CONFIG.get_node_addr().parse().unwrap();
     send_data(
